@@ -5,19 +5,19 @@
 ## object assigned by makeCacheMatrix().
 
 ## The first function "makeCacheMatrix" creates an object that get a matrix and which can also cache its inverse.
-## e.g. yy <- makeCacheMatrix(matrix(c(seq(1,8),0),3,3, byrow=T)) creates an object containing the matrix and initializing
+## e.g. yy <- makeCacheMatrix(matrix(c(seq(1,8),0),3,3, byrow=T)) creates an object yy containing the matrix and initializing
 ## the inv variable to NULL in the makeCacheMatrix() function's environment associated to the object yy.
 
 makeCacheMatrix <- function(x = matrix()) {
-        inv <- NULL
-        set <- function(mat) {
+        inv <- NULL #initialize the inverse matrix to NULL
+        set <- function(mat) { #If the object receives a new assignment, the set() function update the matrix (in x) and reinitialize the inverse inv to NULL.
                 x <<- mat
                 inv <<- NULL
         }
-        get <- function() x
-        setinv <- function(inv.mat) inv <<- inv.mat
-        getinv <- function() inv
-        list(set = set, get = get,
+        get <- function() x #the function to get the value of the non-inverted matrix
+        setinv <- function(inv.mat) inv <<- inv.mat #the function to update the inverse matrix "inv" using the value of "inv.mat"
+        getinv <- function() inv #the function to get the value of "inv", hence NULL or the inverse matrix computed by cacheSolve() and cached in "inv"
+        list(set = set, get = get, #the output of the makeCacheMatrix() function that cacheSolve() will use.
              setinv = setinv,
              getinv = getinv)
 }
@@ -32,16 +32,15 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
-        inv <- x$getinv()
-        if (!is.null(inv)){
+        inv <- x$getinv() #get the value of "inv" in the object created by makeCacheMatrix()
+        if (!is.null(inv)){ #test the returned value of "inv": if different from NULL, it returns the value of "inv" and a message informs the result comes from the cache
                 message("Getting cached inverse")
-                return(inv)
+                return(inv) #as the return() function is used, this stop the cacheSolve() function and returns "inv"
         }
-        data <- x$get()
-        inv <- solve(data, ...)
-        x$setinv(inv)
-        inv
-        
+        data <- x$get() #will be executed only if inv==NULL, it gets the value of the original matrix in the object created by makeCacheMatrix() and stores it in "data"
+        inv <- solve(data, ...) #computes the inverse of "data"
+        x$setinv(inv) #set the value of "inv" in the object created by makeCacheMatrix() to the value of "inv" computed the line above
+        inv #returns the value of the inverse matrix, without the message "Getting cached inverse"
 }
 
 # Proposed code to test the functions and how they work
